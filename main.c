@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void executeOperation(char** memPtr, char* inst, int* i);
+void executeInstruction(char** memPtr, char* inst, int* i);
 
 int main(int argc, char* argv[]) {
 	// Make sure there's an argument
@@ -37,38 +37,30 @@ int main(int argc, char* argv[]) {
 		instructions[i] = fgetc(f);
 	}
 	
+	// Execute instructions
 	while(instIdx < len - 1) {
-		executeOperation(&memPtr, instructions, &instIdx);
+		executeInstruction(&memPtr, instructions, &instIdx);
 		instIdx++;
 	}
 
 	fclose(f);
 	free(memory);
+	free(instructions);
+
 	return 0;
 }
 
-void executeOperation(char** memPtr, char* inst, int* i) {
+void executeInstruction(char** memPtr, char* inst, int* i) {
 	char op = inst[*i];
 	int b = 0;
 	switch(op) {
-		case '>':
-			*memPtr += 1;
-			break;
-		case '<':
-			*memPtr -= 1;
-			break;
-		case '+':
-			**memPtr += 1;
-			break;
-		case '-':
-			**memPtr -= 1;
-			break;
-		case '.':
-			putchar(**memPtr);
-			break;
-		case ',':
-			//TODO: Implement instruction
-			break;
+		case '>': *memPtr += 1; break;
+		case '<': *memPtr -= 1; break;
+		case '+': **memPtr += 1; break;
+		case '-': **memPtr -= 1; break;
+		case '.': putchar(**memPtr); break;
+		//TODO: Implement instruction
+		case ',': break;
 		case '[':
 			if (!**memPtr) { // If the data at the pointer is zero, jump to ']'
 				b = 1;
