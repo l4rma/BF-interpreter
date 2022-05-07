@@ -12,5 +12,3 @@ The interpreter reads from an input file (brainfuck program)
 Usage: ``./bf <file>``
 
 Example: ``./bf test.bf``
-
-
