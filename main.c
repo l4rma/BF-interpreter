@@ -2,7 +2,6 @@
 #include <stdlib.h>
 
 void executeInstruction(char** memPtr, char* inst, int* i);
-int getFileLength(FILE* f);
 
 int main(int argc, char* argv[]) {
 	if (argc != 2) {
@@ -22,7 +21,9 @@ int main(int argc, char* argv[]) {
 		fprintf(stderr, "Error: Could not open file %s\n", fileName);
 		return 0;
 	}
-	fileLength = getFileLength(f);
+	fseek(f,0,SEEK_END);
+	fileLength = ftell(f);
+	rewind(f);
 
 	instructions = malloc(sizeof(char)*fileLength);
 	for (instIdx = 0; instIdx < fileLength; instIdx++) {
@@ -41,46 +42,35 @@ int main(int argc, char* argv[]) {
 	return 0;
 }
 
-int getFileLength(FILE* f) {
-	fseek(f,0,SEEK_END);
-	int len = ftell(f);
-	rewind(f);
-	return len;
-}
-
-void executeInstruction(char** memPtr, char* inst, int* i) {
-	char op = inst[*i];
-	int b = 0;
-	switch(op) {
+void executeInstruction(char** memPtr, char* instruction, int* i) {
+	int loop = 1;
+	switch(instruction[*i]) {
 		case '>': *memPtr += 1; break;
 		case '<': *memPtr -= 1; break;
 		case '+': **memPtr += 1; break;
 		case '-': **memPtr -= 1; break;
 		case '.': putchar(**memPtr); break;
-		//TODO: Implement instruction
-		case ',': break;
+		case ',': break; //TODO: Implement instruction
 		case '[':
 			if (!**memPtr) { // If the data at the pointer is zero, jump to ']'
-				b = 1;
-				while(b) {
+				while(loop) {
 					*i += 1;
-					if(inst[*i] == '[') {
-						b++;
-					} else if(inst[*i] == ']') {
-						b--;
+					if(instruction[*i] == '[') {
+						loop++;
+					} else if(instruction[*i] == ']') {
+						loop--;
 					}
 				}
 			}
 			break;
 		case ']':
 			if (**memPtr) { // If the data at the pointer is not zero, jump to '['
-				b = 1;
-				while(b) {
+				while(loop) {
 					*i -= 1;
-					if(inst[*i] == ']') {
-						b++;
-					} else if(inst[*i] == '[') {
-						b--;
+					if(instruction[*i] == ']') {
+						loop++;
+					} else if(instruction[*i] == '[') {
+						loop--;
 					}
 				}
 			}
