@@ -2,42 +2,37 @@
 #include <stdlib.h>
 
 void executeInstruction(char** memPtr, char* inst, int* i);
-char* readInstructions(FILE* f, int len);
 int getFileLength(FILE* f);
 
 int main(int argc, char* argv[]) {
-	// Exit program if no argument
 	if (argc != 2) {
 		fprintf(stderr, "Usage: ./bf <file>\n");
 		return 1;
 	}
-	char* memPtr;		// Points to memory
-	int instIdx;		// Instruction index
-	char* memory;		// Store bytes interpreted from the instructions
-	int i;				// For loops index
+
+	FILE *f;
+	int instIdx, fileLength;
+	char *memory, *memPtr, *instructions, *fileName;
 	
-	// Setup
 	memory = malloc(sizeof(char)*0x1000); 
 	memPtr = memory;
-	instIdx = 0;
-
-
-	char* fileName = argv[1];
-	FILE* f = fopen(fileName, "r");
+	fileName = argv[1];
+	f = fopen(fileName, "r");
 	if (!f) {
 		fprintf(stderr, "Error: Could not open file %s\n", fileName);
 		return 0;
 	}
+	fileLength = getFileLength(f);
 
-	int len = getFileLength(f);
-
-	// Open file and read
-	char* instructions = readInstructions(f, len);
+	instructions = malloc(sizeof(char)*fileLength);
+	for (instIdx = 0; instIdx < fileLength; instIdx++) {
+		instructions[instIdx] = fgetc(f);
+	}
+	fclose(f);
 	
 	// Execute instructions
-	while(instIdx < len - 1) {
+	for (instIdx = 0; instIdx < fileLength; instIdx++) {
 		executeInstruction(&memPtr, instructions, &instIdx);
-		instIdx++;
 	}
 
 	free(memory);
@@ -51,16 +46,6 @@ int getFileLength(FILE* f) {
 	int len = ftell(f);
 	rewind(f);
 	return len;
-}
-
-char* readInstructions(FILE* f, int len) {
-	char* instructions;	// Store the instructions written from the file
-	instructions = malloc(sizeof(char)*len);
-	for (int i = 0; i < len; i++) {
-		instructions[i] = fgetc(f);
-	}
-	fclose(f);
-	return instructions;
 }
 
 void executeInstruction(char** memPtr, char* inst, int* i) {
