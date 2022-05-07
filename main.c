@@ -11,21 +11,19 @@ int main(int argc, char* argv[]) {
 		fprintf(stderr, "Usage: ./bf <file>\n");
 		return 1;
 	}
-	char* fileName;		// File with instructions
 	char* memPtr;		// Points to memory
 	int instIdx;		// Instruction index
 	char* memory;		// Store bytes interpreted from the instructions
 	int i;				// For loops index
 	
 	// Setup
-	fileName = argv[1];
 	memory = malloc(sizeof(char)*0x1000); 
 	memPtr = memory;
 	instIdx = 0;
 
-	FILE *f;			// File to be loaded as an argument
 
-	f = fopen(fileName, "r");
+	char* fileName = argv[1];
+	FILE* f = fopen(fileName, "r");
 	if (!f) {
 		fprintf(stderr, "Error: Could not open file %s\n", fileName);
 		return 0;
